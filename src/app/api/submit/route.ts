@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       adminNote:     "",
     };
 
-    upsert(submission);
+    await upsert(submission);
 
     return NextResponse.json({ submissionId: submission.id });
   } catch (err) {

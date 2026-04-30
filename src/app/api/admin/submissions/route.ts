@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/auth";
 import { readAll, updateField, findById } from "@/lib/storage";
-import { inngest } from "@/inngest/client";
 import { sendResultEmail } from "@/lib/email";
+import { inngest } from "@/inngest/client";
 
 export async function GET(req: NextRequest) {
   if (!(await isAdminAuthenticated())) {
@@ -45,13 +45,10 @@ export async function PATCH(req: NextRequest) {
 
   if (action === "markPaid") {
     await updateField(id, "paymentStatus", "paid");
-
-    // Inngest-д дамжуулна
     await inngest.send({
       name: "hifuture/result.generate",
       data: { submissionId: id },
     });
-
     return NextResponse.json({ ok: true });
   }
 

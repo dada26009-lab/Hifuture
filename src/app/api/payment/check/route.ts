@@ -9,7 +9,6 @@ export async function POST(req: NextRequest) {
     const sub = await findById(submissionId);
     if (!sub) return NextResponse.json({ error: "Олдсонгүй" }, { status: 404 });
 
-    // Аль хэдийн төлсөн
     if (sub.paymentStatus === "paid") {
       return NextResponse.json({ paid: true, resultReady: !!sub.result });
     }
@@ -19,14 +18,10 @@ export async function POST(req: NextRequest) {
     }
 
     const check = await checkPayment(sub.paymentRef);
-    if (!check.paid) {
-      return NextResponse.json({ paid: false, resultReady: false });
-    }
+    if (!check.paid) return NextResponse.json({ paid: false, resultReady: false });
 
-    // Төлбөр баталгаажлаа
     await updateField(submissionId, "paymentStatus", "paid");
 
-    // Inngest-д дамжуулна (шууд хариулна, background-д ажиллана)
     await inngest.send({
       name: "hifuture/result.generate",
       data: { submissionId },

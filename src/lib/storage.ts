@@ -56,7 +56,7 @@ export async function findById(id: string): Promise<Submission | undefined> {
     .from("submissions")
     .select("*")
     .eq("id", id)
-    .maybeSingle();  // .single() биш .maybeSingle() ашиглана — олдоогүй үед null буцаана
+    .maybeSingle();
 
   if (error) {
     console.error("[storage.findById]", error);
@@ -96,7 +96,7 @@ export async function updateField<K extends keyof Submission>(
     .update({ [col]: value, updated_at: new Date().toISOString() })
     .eq("id", id)
     .select()
-    .maybeSingle();  // .single() биш .maybeSingle()
+    .maybeSingle();
 
   if (error) { console.error("[storage.updateField]", error); return null; }
   return data ? fromRow(data) : null;

@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "submissionId шаардлагатай" }, { status: 400 });
     }
 
-    const sub = await findById(submissionId);
+    const sub = await findById(submissionId);  // ← await нэмсэн
     if (!sub) {
       return NextResponse.json({ error: "Форм олдсонгүй" }, { status: 404 });
     }
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       : "Hi Future — Эцэг эхийн форм";
 
     const invoice = await createInvoice(submissionId, sub.paymentAmount, desc);
-    updateField(submissionId, "paymentRef", invoice.invoiceId);
+    await updateField(submissionId, "paymentRef", invoice.invoiceId);  // ← await нэмсэн
 
     return NextResponse.json({ invoice });
   } catch (err) {

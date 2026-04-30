@@ -1,16 +1,13 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { findById } from "@/lib/storage";
 
-export async function GET(request: NextRequest) {
-  const id = request.nextUrl.searchParams.get("id");
+export async function GET(req: NextRequest) {
+  const id = req.nextUrl.searchParams.get("id");
   if (!id) return NextResponse.json({ error: "id шаардлагатай" }, { status: 400 });
 
   const sub = await findById(id);
   if (!sub) return NextResponse.json({ error: "Олдсонгүй" }, { status: 404 });
 
-  console.log("[result] paymentStatus:", sub.paymentStatus, "hasResult:", !!sub.result);
-
-  // paymentStatus strict check
   if (sub.paymentStatus !== "paid") {
     return NextResponse.json({ error: "Төлбөр төлөгдөөгүй" }, { status: 403 });
   }
