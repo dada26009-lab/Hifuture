@@ -80,7 +80,7 @@ export default function ResultPage() {
         </Section>
 
         {/* majors */}
-        <Section label="Тохиромжтой топ 3 мэргэжлийн чиглэл" color="var(--accent2)">
+        <Section label="Тохиромжтой мэргэжлийн чиглэл" color="var(--accent2)">
           <div className="flex flex-col gap-3">
             {result.majors.map((m, i) => (
               <div key={m.rank} className="rounded-2xl border p-5 flex gap-4"

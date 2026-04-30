@@ -70,17 +70,17 @@ export async function sendResultEmail(
     </div>
 
     <div style="background:#111624;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:20px;margin-bottom:24px;">
-      <p style="color:#38bdf8;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin:0 0 14px;">Топ 3 мэргэжлийн чиглэл</p>
+      <p style="color:#38bdf8;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin:0 0 14px;">Тохиромжтой мэргэжлийн чиглэл</p>
       <table width="100%" cellpadding="0" cellspacing="0">${majorRows}</table>
     </div>
 
     <div style="background:#111624;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:20px;margin-bottom:24px;">
-      <p style="color:#6ee7b7;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin:0 0 12px;">Таны хүч чадлууд</p>
+      <p style="color:#6ee7b7;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin:0 0 12px;">Ур чадварууд</p>
       <ul style="margin:0;padding-left:0;list-style:none;">${strengthItems}</ul>
     </div>
 
     <div style="background:#111624;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:20px;margin-bottom:24px;">
-      <p style="color:#a78bfa;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin:0 0 12px;">Дараагийн алхмууд</p>
+      <p style="color:#a78bfa;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin:0 0 12px;">Цаашид...</p>
       <ul style="margin:0;padding-left:0;list-style:none;">${stepItems}</ul>
     </div>
 

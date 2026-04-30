@@ -44,7 +44,7 @@ function ResultCard({ data, label, accentColor }: { data: ResultResponse; label:
         </div>
       </Section>
 
-      <Section label="Топ 3 мэргэжлийн чиглэл" color="var(--accent2)">
+      <Section label="Тохирох мэргэжлийн чиглэл" color="var(--accent2)">
         <div className="flex flex-col gap-3">
           {result.majors.map((m) => (
             <div key={m.rank} className="rounded-2xl border p-5 flex gap-4"
@@ -78,7 +78,7 @@ function ResultCard({ data, label, accentColor }: { data: ResultResponse; label:
         </div>
       </Section>
 
-      <Section label="Хүч чадлууд" color={accentColor}>
+      <Section label="Ур чадварууд" color={accentColor}>
         <div className="grid grid-cols-2 gap-3">
           {result.strengths.map((s) => (
             <div key={s.name} className="rounded-2xl border p-4 flex gap-3"
@@ -105,7 +105,7 @@ function ResultCard({ data, label, accentColor }: { data: ResultResponse; label:
         </div>
       </Section>
 
-      <Section label="Дараагийн алхмууд" color="var(--accent3)">
+      <Section label="Цаашид..." color="var(--accent3)">
         <div className="flex flex-col gap-2">
           {result.next_steps.map((s, i) => (
             <div key={s} className="rounded-xl border p-4 flex gap-3 text-sm"
