@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { AdminShell } from "../dashboard/page";
+import { AdminShell } from "@/components/admin/AdminShell";
 import type { Submission } from "@/types";
 
 const STATUS_LABEL: Record<string, string> = { paid: "Төлсөн", pending: "Хүлээгдэж байна", failed: "Амжилтгүй" };
@@ -55,7 +55,6 @@ export default function SubmissionsPage() {
 
   return (
     <AdminShell title={`Формууд (${total})`} onLogout={logout}>
-      {/* filters */}
       <div className="flex flex-wrap gap-3 mb-6">
         <select value={filter.type} onChange={(e) => setFilter((f) => ({ ...f, type: e.target.value }))}
           className={inputCls} style={inputStyle}>
@@ -84,7 +83,8 @@ export default function SubmissionsPage() {
           <div className="rounded-2xl border overflow-hidden mb-6" style={{ borderColor: "var(--border)" }}>
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b text-xs font-bold tracking-wide uppercase" style={{ background: "var(--surface2)", borderColor: "var(--border)", color: "var(--muted)" }}>
+                <tr className="border-b text-xs font-bold tracking-wide uppercase"
+                  style={{ background: "var(--surface2)", borderColor: "var(--border)", color: "var(--muted)" }}>
                   <th className="px-4 py-3 text-left">Огноо</th>
                   <th className="px-4 py-3 text-left">Имэйл</th>
                   <th className="px-4 py-3 text-left">Төрөл</th>
@@ -129,8 +129,6 @@ export default function SubmissionsPage() {
               </tbody>
             </table>
           </div>
-
-          {/* pagination */}
           <div className="flex items-center gap-3">
             <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)}
               className="text-xs px-3 py-2 rounded-xl border disabled:opacity-30"
@@ -143,7 +141,6 @@ export default function SubmissionsPage() {
         </>
       )}
 
-      {/* detail modal */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
           style={{ background: "rgba(0,0,0,.7)", backdropFilter: "blur(8px)" }}>
@@ -185,8 +182,7 @@ export default function SubmissionsPage() {
                 <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3}
                   className="w-full px-4 py-3 rounded-xl text-xs outline-none resize-none"
                   style={{ background: "var(--surface2)", border: "1px solid var(--border)", color: "var(--text)" }} />
-                <button onClick={() => doAction(selected.id, "note", note)}
-                  disabled={actionLoading}
+                <button onClick={() => doAction(selected.id, "note", note)} disabled={actionLoading}
                   className="mt-2 text-xs px-4 py-2 rounded-xl border transition disabled:opacity-50"
                   style={{ borderColor: "var(--border)", color: "var(--muted)" }}>
                   Хадгалах

@@ -1,14 +1,15 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState, useCallback } from "react";
 
-export default function BundlePaymentPage() {
+function BundlePaymentContent() {
   const router       = useRouter();
   const searchParams = useSearchParams();
   const studentId    = searchParams.get("s") ?? "";
   const parentId     = searchParams.get("p") ?? "";
 
-  const [status, setStatus]   = useState<"waiting" | "generating" | "done">("waiting");
+  const [status, setStatus]   = useState<"waiting" | "generating">("waiting");
   const [polling, setPolling] = useState(false);
   const [error, setError]     = useState("");
 
@@ -16,7 +17,6 @@ export default function BundlePaymentPage() {
     setPolling(true);
     setStatus("generating");
 
-    // Mark both as paid
     await fetch("/api/admin/submissions", {
       method: "PATCH", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: studentId, action: "markPaid" }),
@@ -26,7 +26,6 @@ export default function BundlePaymentPage() {
       body: JSON.stringify({ id: parentId, action: "markPaid" }),
     });
 
-    // Poll until both results ready
     const wait = setInterval(async () => {
       const [r1, r2] = await Promise.all([
         fetch(`/api/result?id=${studentId}`).then((r) => r.json()),
@@ -96,5 +95,17 @@ export default function BundlePaymentPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function BundlePaymentPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
+        <p style={{ color: "var(--muted)" }}>Ачааллаж байна...</p>
+      </div>
+    }>
+      <BundlePaymentContent />
+    </Suspense>
   );
 }

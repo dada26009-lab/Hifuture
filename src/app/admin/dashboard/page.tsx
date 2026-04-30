@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { AdminShell } from "@/components/admin/AdminShell";
 import type { AdminStats } from "@/types";
 
 function StatCard({ label, value, sub, accent }: { label: string; value: string | number; sub?: string; accent?: string }) {
@@ -16,7 +17,7 @@ function StatCard({ label, value, sub, accent }: { label: string; value: string 
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [stats, setStats]   = useState<AdminStats | null>(null);
+  const [stats, setStats]     = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,8 +46,8 @@ export default function DashboardPage() {
         <StatCard label="Нийт орлого"         value={fmt(stats.totalRevenue)}  accent="#fbbf24" />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <StatCard label="Нийт форм"     value={stats.totalSubmissions} />
-        <StatCard label="Төлбөр төлсөн" value={stats.paidSubmissions}  accent="var(--accent)" />
+        <StatCard label="Нийт форм"      value={stats.totalSubmissions} />
+        <StatCard label="Төлбөр төлсөн"  value={stats.paidSubmissions}  accent="var(--accent)" />
         <StatCard label="Сурагчийн форм" value={stats.studentForms} />
         <StatCard label="Эцэг эхийн форм" value={stats.parentForms} />
       </div>
@@ -54,8 +55,7 @@ export default function DashboardPage() {
         <StatCard label="Имэйл илгээсэн" value={stats.emailSentCount}   accent="var(--accent)" />
         <StatCard label="Имэйл алдаатай" value={stats.emailFailedCount} accent="#ef4444" />
       </div>
-
-      <div className="mt-8 flex gap-3">
+      <div className="mt-8">
         <Link href="/admin/submissions"
           className="px-6 py-3 rounded-xl font-bold text-sm transition hover:-translate-y-0.5"
           style={{ background: "linear-gradient(135deg,#6ee7b7,#38bdf8)", color: "#06080f" }}>
@@ -63,35 +63,5 @@ export default function DashboardPage() {
         </Link>
       </div>
     </AdminShell>
-  );
-}
-
-/* ── shared admin shell ── */
-export function AdminShell({ title, children, onLogout }: { title: string; children: React.ReactNode; onLogout?: () => void }) {
-  return (
-    <div className="min-h-screen" style={{ background: "var(--bg)" }}>
-      <nav className="flex items-center justify-between px-6 py-4 border-b"
-        style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
-        <div className="flex items-center gap-6">
-          <span className="font-serif text-lg">Hi <span style={{ color: "var(--accent)" }}>Future</span></span>
-          <span className="text-xs font-bold tracking-widest uppercase px-2 py-1 rounded"
-            style={{ background: "rgba(251,191,36,.1)", color: "#fbbf24" }}>Admin</span>
-          <div className="hidden md:flex gap-4">
-            <Link href="/admin/dashboard" className="text-sm hover:text-[var(--accent)] transition" style={{ color: "var(--muted)" }}>Dashboard</Link>
-            <Link href="/admin/submissions" className="text-sm hover:text-[var(--accent)] transition" style={{ color: "var(--muted)" }}>Формууд</Link>
-          </div>
-        </div>
-        {onLogout && (
-          <button onClick={onLogout} className="text-xs px-4 py-2 rounded-xl border transition hover:border-red-500 hover:text-red-400"
-            style={{ borderColor: "var(--border)", color: "var(--muted)" }}>
-            Гарах
-          </button>
-        )}
-      </nav>
-      <div className="max-w-5xl mx-auto px-5 py-8">
-        <h1 className="font-serif text-2xl mb-6">{title}</h1>
-        {children}
-      </div>
-    </div>
   );
 }

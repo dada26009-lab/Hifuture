@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from "react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { ResultData, FormType } from "@/types";
@@ -27,7 +28,6 @@ function ResultCard({ data, label, accentColor }: { data: ResultResponse; label:
 
   return (
     <div className="mb-16">
-      {/* header */}
       <div className="flex items-center gap-3 mb-8 p-4 rounded-2xl border"
         style={{ background: `${accentColor}10`, borderColor: `${accentColor}30` }}>
         <div className="text-3xl">{data.formType === "student" ? "🎓" : "👨‍👩‍👦"}</div>
@@ -37,7 +37,6 @@ function ResultCard({ data, label, accentColor }: { data: ResultResponse; label:
         </div>
       </div>
 
-      {/* summary */}
       <Section label="Ерөнхий дүгнэлт" color={accentColor}>
         <div className="rounded-2xl border p-5 text-sm leading-relaxed"
           style={{ background: "var(--surface)", borderColor: "var(--border)", color: "#cbd5e1" }}>
@@ -45,10 +44,9 @@ function ResultCard({ data, label, accentColor }: { data: ResultResponse; label:
         </div>
       </Section>
 
-      {/* majors */}
-      <Section label="Тохирох топ мэргэжлийн чиглэл" color="var(--accent2)">
+      <Section label="Топ 3 мэргэжлийн чиглэл" color="var(--accent2)">
         <div className="flex flex-col gap-3">
-          {result.majors.map((m, i) => (
+          {result.majors.map((m) => (
             <div key={m.rank} className="rounded-2xl border p-5 flex gap-4"
               style={{
                 background: m.rank === 1 ? `${accentColor}08` : "var(--surface)",
@@ -80,8 +78,7 @@ function ResultCard({ data, label, accentColor }: { data: ResultResponse; label:
         </div>
       </Section>
 
-      {/* strengths */}
-      <Section label="Ур чадварууд" color={accentColor}>
+      <Section label="Хүч чадлууд" color={accentColor}>
         <div className="grid grid-cols-2 gap-3">
           {result.strengths.map((s) => (
             <div key={s.name} className="rounded-2xl border p-4 flex gap-3"
@@ -96,7 +93,6 @@ function ResultCard({ data, label, accentColor }: { data: ResultResponse; label:
         </div>
       </Section>
 
-      {/* cautions */}
       <Section label="Анхаарах зүйлс" color="#fbbf24">
         <div className="flex flex-col gap-2">
           {result.cautions.map((c) => (
@@ -109,8 +105,7 @@ function ResultCard({ data, label, accentColor }: { data: ResultResponse; label:
         </div>
       </Section>
 
-      {/* next steps */}
-      <Section label="Цаашид..." color="var(--accent3)">
+      <Section label="Дараагийн алхмууд" color="var(--accent3)">
         <div className="flex flex-col gap-2">
           {result.next_steps.map((s, i) => (
             <div key={s} className="rounded-xl border p-4 flex gap-3 text-sm"
@@ -126,7 +121,7 @@ function ResultCard({ data, label, accentColor }: { data: ResultResponse; label:
   );
 }
 
-export default function BundleResultPage() {
+function BundleResultContent() {
   const searchParams = useSearchParams();
   const studentId    = searchParams.get("s") ?? "";
   const parentId     = searchParams.get("p") ?? "";
@@ -191,9 +186,21 @@ export default function BundleResultPage() {
 
         <div className="rounded-2xl border p-5 text-center text-xs leading-relaxed"
           style={{ background: "rgba(148,163,184,.04)", borderColor: "rgba(148,163,184,.1)", color: "var(--muted)" }}>
-          ⚠️ Энэ зөвлөгөө таны хариултад суурилсан <strong>чиглүүлэх зөвлөмж</strong> бөгөөд эцсийн сонголт биш юм.
+          ⚠️ Энэ зөвлөгөө таны хариултад суурилсан <strong>чиглүүлэх зөвлөмж</strong> бөгөөд эцсийн шийдвэр биш.
         </div>
       </div>
     </div>
+  );
+}
+
+export default function BundleResultPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
+        <p style={{ color: "var(--muted)" }}>Ачааллаж байна...</p>
+      </div>
+    }>
+      <BundleResultContent />
+    </Suspense>
   );
 }

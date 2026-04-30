@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "submissionId шаардлагатай" }, { status: 400 });
     }
 
-    const sub = findById(submissionId);
+    const sub = await findById(submissionId);
     if (!sub) {
       return NextResponse.json({ error: "Форм олдсонгүй" }, { status: 404 });
     }

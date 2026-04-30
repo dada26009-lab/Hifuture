@@ -11,10 +11,10 @@ export async function POST(req: NextRequest) {
     const submissionId: string = body.object_id ?? body.sender_invoice_no;
     if (!submissionId) return NextResponse.json({ ok: true });
 
-    const sub = findById(submissionId);
+    const sub = await findById(submissionId);
     if (!sub || sub.paymentStatus === "paid") return NextResponse.json({ ok: true });
 
-    updateField(submissionId, "paymentStatus", "paid");
+    await updateField(submissionId, "paymentStatus", "paid");
 
     const result = await generateResult(sub.formType, sub.answers);
     updateField(submissionId, "result", result);
