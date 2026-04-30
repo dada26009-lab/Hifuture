@@ -11,6 +11,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.105.1",
     "bcryptjs": "^2.4.3",
+    "inngest": "^4.2.6",
     "jose": "^5.6.3",
     "next": "14.2.5",
     "nodemailer": "^6.9.14",

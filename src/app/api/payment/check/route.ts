@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findById, updateField } from "@/lib/storage";
 import { checkPayment } from "@/lib/qpay";
-import { generateResult } from "@/lib/claude";
-import { sendResultEmail } from "@/lib/email";
+import { inngest } from "@/inngest/client";
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,7 +9,7 @@ export async function POST(req: NextRequest) {
     const sub = await findById(submissionId);
     if (!sub) return NextResponse.json({ error: "Олдсонгүй" }, { status: 404 });
 
-    // Аль хэдийн төлсөн бол result бэлэн эсэхийг шалга
+    // Аль хэдийн төлсөн
     if (sub.paymentStatus === "paid") {
       return NextResponse.json({ paid: true, resultReady: !!sub.result });
     }
@@ -27,32 +26,13 @@ export async function POST(req: NextRequest) {
     // Төлбөр баталгаажлаа
     await updateField(submissionId, "paymentStatus", "paid");
 
-    // answers-г зөв array болгох
-    const answers = Array.isArray(sub.answers) ? sub.answers : [];
+    // Inngest-д дамжуулна (шууд хариулна, background-д ажиллана)
+    await inngest.send({
+      name: "hifuture/result.generate",
+      data: { submissionId },
+    });
 
-    // Result үүсгэнэ
-    let result = sub.result;
-    if (!result) {
-      try {
-        result = await generateResult(sub.formType, answers);
-        await updateField(submissionId, "result", result);
-      } catch (e) {
-        console.error("[claude error]", e);
-        return NextResponse.json({ paid: true, resultReady: false });
-      }
-    }
-
-    // Имэйл илгээнэ
-    if (result) {
-      sendResultEmail(sub.email, sub.formType, result)
-        .then(() => updateField(submissionId, "emailStatus", "sent"))
-        .catch((e) => {
-          console.error("[email error]", e);
-          updateField(submissionId, "emailStatus", "failed");
-        });
-    }
-
-    return NextResponse.json({ paid: true, resultReady: !!result });
+    return NextResponse.json({ paid: true, resultReady: false });
   } catch (err) {
     console.error("[payment/check]", err);
     return NextResponse.json({ error: "Серверийн алдаа" }, { status: 500 });

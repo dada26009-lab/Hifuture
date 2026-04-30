@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/auth";
 import { readAll, updateField, findById } from "@/lib/storage";
-import { generateResult } from "@/lib/claude";
+import { inngest } from "@/inngest/client";
 import { sendResultEmail } from "@/lib/email";
 
 export async function GET(req: NextRequest) {
@@ -27,7 +27,6 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  // Skip auth check for markPaid action (called from payment page)
   const body = await req.json();
   const { id, action, value } = body;
 
@@ -46,21 +45,13 @@ export async function PATCH(req: NextRequest) {
 
   if (action === "markPaid") {
     await updateField(id, "paymentStatus", "paid");
-    const fresh = await findById(id);
-    if (!fresh) return NextResponse.json({ error: "Олдсонгүй" }, { status: 404 });
 
-    if (!fresh.result) {
-      try {
-        const answers = Array.isArray(fresh.answers) ? fresh.answers : [];
-        const result  = await generateResult(fresh.formType, answers);
-        await updateField(id, "result", result);
-        sendResultEmail(fresh.email, fresh.formType, result)
-          .then(() => updateField(id, "emailStatus", "sent"))
-          .catch(() => updateField(id, "emailStatus", "failed"));
-      } catch (e) {
-        console.error("[markPaid claude error]", e);
-      }
-    }
+    // Inngest-д дамжуулна
+    await inngest.send({
+      name: "hifuture/result.generate",
+      data: { submissionId: id },
+    });
+
     return NextResponse.json({ ok: true });
   }
 
