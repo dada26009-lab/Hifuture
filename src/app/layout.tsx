@@ -3,11 +3,10 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Hi Future — Мэргэжлийн зөвлөгөө",
-  description: "20 минутын дотор чиний ур чадвар, зан чанар, сонирхолд тохирсон мэргэжлийн зөвлөгөө аваарай.",
-  openGraph: {
-    title: "Hi Future — Мэргэжлийн зөвлөгөө",
-    description: "AI-д суурилсан мэргэжлийн зөвлөгөө. 12-р ангийн сурагчдад зориулсан.",
-    type: "website",
+  description: "20 минутын дотор чиний ур чадвар, зан чанар, сонирхолд тохирсон мэргэжлийн зөвлөгөөг аваарай.",
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
   },
 };
 
