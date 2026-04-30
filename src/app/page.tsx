@@ -224,7 +224,7 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
-                  <p className="font-serif text-3xl mb-1">₮15,000</p>
+                  <p className="font-serif text-3xl mb-1">₮5,000</p>
                   <p className="text-sm mb-5" style={{ color: "var(--muted)" }}>нэг удаагийн төлбөр</p>
                   <Link href="/student-form"
                     className="block text-center py-3.5 rounded-full font-bold text-sm transition-all duration-200 hover:scale-[1.02]"
@@ -250,7 +250,7 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
-                  <p className="font-serif text-3xl mb-1">₮15,000</p>
+                  <p className="font-serif text-3xl mb-1">₮5,000</p>
                   <p className="text-sm mb-5" style={{ color: "var(--muted)" }}>нэг удаагийн төлбөр</p>
                   <Link href="/parent-form"
                     className="block text-center py-3.5 rounded-full font-bold text-sm transition-all duration-200 hover:scale-[1.02]"
@@ -272,7 +272,7 @@ export default function Home() {
                   <p className="text-sm" style={{ color: "var(--muted)" }}>Сурагч болон эцэг эх хоёулаа бөглөж, нэгтгэсэн дүн шинжилгээ авна.</p>
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                  <p className="font-serif text-3xl">₮25,000</p>
+                  <p className="font-serif text-3xl">₮8,000</p>
                   <p className="text-sm font-semibold" style={{ color: "var(--accent)" }}>₮5,000 хэмнэнэ</p>
                   <Link href="/bundle-form"
                     className="px-7 py-3 rounded-full font-bold text-sm text-white transition-all duration-200 hover:scale-[1.04]"
