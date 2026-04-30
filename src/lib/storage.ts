@@ -9,18 +9,18 @@ function getClient() {
 
 function toRow(s: Submission) {
   return {
-    id:               s.id,
-    form_type:        s.formType,
-    email:            s.email,
-    answers:          s.answers,
-    payment_status:   s.paymentStatus,
-    payment_ref:      s.paymentRef,
-    payment_amount:   s.paymentAmount,
-    result:           s.result,
-    email_status:     s.emailStatus,
-    admin_note:       s.adminNote,
-    created_at:       s.createdAt,
-    updated_at:       s.updatedAt,
+    id:             s.id,
+    form_type:      s.formType,
+    email:          s.email,
+    answers:        s.answers,
+    payment_status: s.paymentStatus,
+    payment_ref:    s.paymentRef,
+    payment_amount: s.paymentAmount,
+    result:         s.result,
+    email_status:   s.emailStatus,
+    admin_note:     s.adminNote,
+    created_at:     s.createdAt,
+    updated_at:     s.updatedAt,
   };
 }
 
@@ -56,8 +56,12 @@ export async function findById(id: string): Promise<Submission | undefined> {
     .from("submissions")
     .select("*")
     .eq("id", id)
-    .single();
-  if (error) { console.error("[storage.findById]", error); return undefined; }
+    .maybeSingle();  // .single() биш .maybeSingle() ашиглана — олдоогүй үед null буцаана
+
+  if (error) {
+    console.error("[storage.findById]", error);
+    return undefined;
+  }
   return data ? fromRow(data) : undefined;
 }
 
@@ -92,7 +96,8 @@ export async function updateField<K extends keyof Submission>(
     .update({ [col]: value, updated_at: new Date().toISOString() })
     .eq("id", id)
     .select()
-    .single();
+    .maybeSingle();  // .single() биш .maybeSingle()
+
   if (error) { console.error("[storage.updateField]", error); return null; }
   return data ? fromRow(data) : null;
 }
