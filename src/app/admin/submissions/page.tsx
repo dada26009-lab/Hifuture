@@ -4,24 +4,33 @@ import { useRouter } from "next/navigation";
 import { AdminShell } from "@/components/admin/AdminShell";
 import type { Submission } from "@/types";
 
-const STATUS_LABEL: Record<string, string> = { paid: "Төлсөн", pending: "Хүлээгдэж байна", failed: "Амжилтгүй" };
-const STATUS_COLOR: Record<string, string> = { paid: "var(--accent)", pending: "#fbbf24", failed: "#ef4444" };
+const STATUS_LABEL: Record<string, string> = {
+  paid: "Төлсөн", pending: "Хүлээгдэж байна", failed: "Амжилтгүй"
+};
+const STATUS_COLOR: Record<string, string> = {
+  paid: "var(--accent)", pending: "#fbbf24", failed: "#ef4444"
+};
 
 export default function SubmissionsPage() {
   const router = useRouter();
-  const [items, setItems]   = useState<Submission[]>([]);
-  const [total, setTotal]   = useState(0);
-  const [page, setPage]     = useState(1);
+  const [items, setItems]     = useState<Submission[]>([]);
+  const [total, setTotal]     = useState(0);
+  const [page, setPage]       = useState(1);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState({ type: "", status: "", email: "" });
-  const [selected, setSelected] = useState<Submission | null>(null);
-  const [note, setNote]     = useState("");
+  const [filter, setFilter]   = useState({ type: "", status: "", email: "" });
+  const [selected, setSelected]     = useState<Submission | null>(null);
+  const [note, setNote]             = useState("");
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [newEmail, setNewEmail]     = useState("");
   const [actionLoading, setActionLoading] = useState(false);
-  const [msg, setMsg]       = useState("");
+  const [msg, setMsg]               = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
-    const p = new URLSearchParams({ page: String(page), ...Object.fromEntries(Object.entries(filter).filter(([, v]) => v)) });
+    const p = new URLSearchParams({
+      page: String(page),
+      ...Object.fromEntries(Object.entries(filter).filter(([, v]) => v))
+    });
     const res = await fetch(`/api/admin/submissions?${p}`);
     if (res.status === 401) { router.replace("/admin"); return; }
     const data = await res.json();
@@ -41,8 +50,17 @@ export default function SubmissionsPage() {
     });
     const data = await res.json();
     setActionLoading(false);
-    if (res.ok) { setMsg("✓ Амжилттай"); load(); }
-    else setMsg(`❌ ${data.error}`);
+    if (res.ok) {
+      setMsg("✓ Амжилттай");
+      // Update selected locally
+      if (selected && action === "updateEmail") {
+        setSelected({ ...selected, email: value! });
+        setEditingEmail(false);
+      }
+      load();
+    } else {
+      setMsg(`❌ ${data.error}`);
+    }
   };
 
   const logout = async () => {
@@ -50,11 +68,20 @@ export default function SubmissionsPage() {
     router.replace("/admin");
   };
 
+  const openModal = (s: Submission) => {
+    setSelected(s);
+    setNote(s.adminNote);
+    setNewEmail(s.email);
+    setEditingEmail(false);
+    setMsg("");
+  };
+
   const inputCls = "px-3 py-2 rounded-xl text-xs outline-none border";
   const inputStyle = { background: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" };
 
   return (
     <AdminShell title={`Формууд (${total})`} onLogout={logout}>
+      {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6">
         <select value={filter.type} onChange={(e) => setFilter((f) => ({ ...f, type: e.target.value }))}
           className={inputCls} style={inputStyle}>
@@ -78,6 +105,7 @@ export default function SubmissionsPage() {
         </button>
       </div>
 
+      {/* Table */}
       {loading ? <p style={{ color: "var(--muted)" }}>Ачааллаж байна...</p> : (
         <>
           <div className="rounded-2xl border overflow-hidden mb-6" style={{ borderColor: "var(--border)" }}>
@@ -95,9 +123,8 @@ export default function SubmissionsPage() {
               </thead>
               <tbody>
                 {items.map((s) => (
-                  <tr key={s.id} className="border-b transition hover:bg-white/[.02] cursor-pointer"
-                    style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-                    onClick={() => { setSelected(s); setNote(s.adminNote); setMsg(""); }}>
+                  <tr key={s.id} className="border-b transition hover:bg-white/[.02]"
+                    style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
                     <td className="px-4 py-3 text-xs" style={{ color: "var(--muted)" }}>
                       {new Date(s.createdAt).toLocaleDateString("mn-MN")}
                     </td>
@@ -113,12 +140,15 @@ export default function SubmissionsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-0.5 rounded-full text-xs font-semibold"
-                        style={{ background: s.emailStatus === "sent" ? "rgba(110,231,183,.1)" : "rgba(148,163,184,.1)", color: s.emailStatus === "sent" ? "var(--accent)" : "var(--muted)" }}>
+                        style={{
+                          background: s.emailStatus === "sent" ? "rgba(110,231,183,.1)" : "rgba(148,163,184,.1)",
+                          color: s.emailStatus === "sent" ? "var(--accent)" : "var(--muted)"
+                        }}>
                         {s.emailStatus === "sent" ? "Илгээсэн" : s.emailStatus === "failed" ? "Алдаатай" : "Хүлээгдэж байна"}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <button onClick={(e) => { e.stopPropagation(); setSelected(s); setNote(s.adminNote); setMsg(""); }}
+                      <button onClick={() => openModal(s)}
                         className="text-xs px-3 py-1 rounded-lg border transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
                         style={{ borderColor: "var(--border)", color: "var(--muted)" }}>
                         Харах
@@ -141,42 +171,94 @@ export default function SubmissionsPage() {
         </>
       )}
 
+      {/* Modal */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
           style={{ background: "rgba(0,0,0,.7)", backdropFilter: "blur(8px)" }}>
           <div className="w-full max-w-lg rounded-3xl border max-h-[90vh] overflow-y-auto"
             style={{ background: "var(--surface)", borderColor: "rgba(110,231,183,.2)" }}>
+
+            {/* Modal header */}
             <div className="sticky top-0 flex items-center justify-between px-6 py-4 border-b"
               style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
               <h2 className="font-bold">Дэлгэрэнгүй</h2>
               <button onClick={() => setSelected(null)} style={{ color: "var(--muted)" }}>✕</button>
             </div>
+
             <div className="p-6 space-y-4">
-              <Row label="Имэйл"  value={selected.email} />
+
+              {/* Email with edit */}
+              <div className="rounded-xl border p-3" style={{ background: "var(--surface2)", borderColor: "var(--border)" }}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-bold" style={{ color: "var(--muted)" }}>ИМЭЙЛ</span>
+                  {!editingEmail && (
+                    <button onClick={() => { setEditingEmail(true); setNewEmail(selected.email); }}
+                      className="text-xs px-2.5 py-1 rounded-lg border transition"
+                      style={{ borderColor: "rgba(56,189,248,.3)", color: "var(--accent2)" }}>
+                      ✏️ Засах
+                    </button>
+                  )}
+                </div>
+                {editingEmail ? (
+                  <div className="flex gap-2 mt-2">
+                    <input type="email" value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      className="flex-1 px-3 py-2 rounded-xl text-sm outline-none"
+                      style={{ background: "var(--surface)", border: "1px solid var(--accent2)", color: "var(--text)" }}
+                      placeholder="Шинэ имэйл хаяг" />
+                    <button onClick={() => doAction(selected.id, "updateEmail", newEmail)}
+                      disabled={actionLoading || !newEmail.includes("@")}
+                      className="px-3 py-2 rounded-xl text-xs font-bold disabled:opacity-50"
+                      style={{ background: "var(--accent2)", color: "#06080f" }}>
+                      Хадгалах
+                    </button>
+                    <button onClick={() => setEditingEmail(false)}
+                      className="px-3 py-2 rounded-xl text-xs border"
+                      style={{ borderColor: "var(--border)", color: "var(--muted)" }}>
+                      Болих
+                    </button>
+                  </div>
+                ) : (
+                  <p className="font-medium text-sm mt-1">{selected.email}</p>
+                )}
+              </div>
+
+              {/* Other info */}
               <Row label="Төрөл"  value={selected.formType === "student" ? "Сурагч" : "Эцэг эх"} />
               <Row label="Статус" value={STATUS_LABEL[selected.paymentStatus]} />
               <Row label="Дүн"    value={`₮${selected.paymentAmount.toLocaleString()}`} />
               <Row label="Огноо"  value={new Date(selected.createdAt).toLocaleString("mn-MN")} />
 
-              {msg && <p className="text-xs" style={{ color: msg.startsWith("✓") ? "var(--accent)" : "#ef4444" }}>{msg}</p>}
+              {/* Message */}
+              {msg && (
+                <p className="text-xs px-3 py-2 rounded-lg"
+                  style={{
+                    background: msg.startsWith("✓") ? "rgba(110,231,183,.1)" : "rgba(239,68,68,.1)",
+                    color: msg.startsWith("✓") ? "var(--accent)" : "#ef4444"
+                  }}>
+                  {msg}
+                </p>
+              )}
 
+              {/* Action buttons */}
               <div className="flex flex-wrap gap-2">
                 {selected.paymentStatus !== "paid" && (
                   <button disabled={actionLoading} onClick={() => doAction(selected.id, "markPaid")}
                     className="text-xs px-4 py-2 rounded-xl font-bold transition disabled:opacity-50"
                     style={{ background: "var(--accent)", color: "#06080f" }}>
-                    Гараар баталгаажуулах
+                    ✅ Гараар баталгаажуулах
                   </button>
                 )}
                 {selected.result && (
                   <button disabled={actionLoading} onClick={() => doAction(selected.id, "resendEmail")}
                     className="text-xs px-4 py-2 rounded-xl font-bold transition disabled:opacity-50 border"
                     style={{ borderColor: "var(--accent2)", color: "var(--accent2)" }}>
-                    Имэйл дахин илгээх
+                    📧 Имэйл дахин илгээх
                   </button>
                 )}
               </div>
 
+              {/* Note */}
               <div>
                 <p className="text-xs font-bold mb-2" style={{ color: "var(--muted)" }}>Тэмдэглэл</p>
                 <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3}
@@ -198,7 +280,8 @@ export default function SubmissionsPage() {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between text-sm">
+    <div className="flex justify-between text-sm py-1 border-b"
+      style={{ borderColor: "rgba(255,255,255,.05)" }}>
       <span style={{ color: "var(--muted)" }}>{label}</span>
       <span className="font-medium">{value}</span>
     </div>

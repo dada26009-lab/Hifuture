@@ -38,11 +38,23 @@ export async function PATCH(req: NextRequest) {
   const sub = await findById(id);
   if (!sub) return NextResponse.json({ error: "Олдсонгүй" }, { status: 404 });
 
+  // Тэмдэглэл хадгалах
   if (action === "note") {
     await updateField(id, "adminNote", value as string);
     return NextResponse.json({ ok: true });
   }
 
+  // Имэйл засах
+  if (action === "updateEmail") {
+    const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailReg.test(value)) {
+      return NextResponse.json({ error: "Имэйл хаяг буруу байна" }, { status: 400 });
+    }
+    await updateField(id, "email", value as string);
+    return NextResponse.json({ ok: true });
+  }
+
+  // Гараар баталгаажуулах
   if (action === "markPaid") {
     await updateField(id, "paymentStatus", "paid");
     await inngest.send({
@@ -52,6 +64,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
+  // Имэйл дахин илгээх
   if (action === "resendEmail") {
     const fresh = await findById(id);
     if (!fresh?.result) {
