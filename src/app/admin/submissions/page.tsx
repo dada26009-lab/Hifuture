@@ -126,7 +126,7 @@ export default function SubmissionsPage() {
                   <tr key={s.id} className="border-b transition hover:bg-white/[.02]"
                     style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
                     <td className="px-4 py-3 text-xs" style={{ color: "var(--muted)" }}>
-                      {new Date(s.createdAt).toLocaleDateString("mn-MN")}
+                      {new Date(s.createdAt).toLocaleString("mn-MN")}
                     </td>
                     <td className="px-4 py-3 text-xs">{s.email}</td>
                     <td className="px-4 py-3 text-xs">
