@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
 
+export const ADMIN_COOKIE = "admin_token";  // ← энэ мөрийг нэмнэ
+
 export async function isAdminAuthenticated(): Promise<boolean> {
   try {
     const cookieStore = cookies();
