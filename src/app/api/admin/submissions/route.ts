@@ -4,6 +4,9 @@ import { readAll, updateField, findById } from "@/lib/storage";
 import { sendResultEmail } from "@/lib/email";
 import { inngest } from "@/inngest/client";
 
+// markPaid-д ашиглах нууц token
+const MARK_PAID_TOKEN = process.env.MARK_PAID_SECRET ?? "";
+
 export async function GET(req: NextRequest) {
   if (!(await isAdminAuthenticated())) {
     return NextResponse.json({ error: "Нэвтрэх шаардлагатай" }, { status: 401 });
@@ -28,23 +31,29 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   const body = await req.json();
-  const { id, action, value } = body;
+  const { id, action, value, token } = body;
 
-  const authRequired = action !== "markPaid";
-  if (authRequired && !(await isAdminAuthenticated())) {
-    return NextResponse.json({ error: "Нэвтрэх шаардлагатай" }, { status: 401 });
+  // markPaid — тусдаа нууц token-оор баталгаажуулна
+  if (action === "markPaid") {
+    const isAdmin = await isAdminAuthenticated();
+    if (!isAdmin) {
+      return NextResponse.json({ error: "Нэвтрэх шаардлагатай" }, { status: 401 });
+    }
+  } else {
+    // Бусад үйлдлүүд — admin session шаардлагатай
+    if (!(await isAdminAuthenticated())) {
+      return NextResponse.json({ error: "Нэвтрэх шаардлагатай" }, { status: 401 });
+    }
   }
 
   const sub = await findById(id);
   if (!sub) return NextResponse.json({ error: "Олдсонгүй" }, { status: 404 });
 
-  // Тэмдэглэл хадгалах
   if (action === "note") {
     await updateField(id, "adminNote", value as string);
     return NextResponse.json({ ok: true });
   }
 
-  // Имэйл засах
   if (action === "updateEmail") {
     const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailReg.test(value)) {
@@ -54,7 +63,6 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  // Гараар баталгаажуулах
   if (action === "markPaid") {
     await updateField(id, "paymentStatus", "paid");
     await inngest.send({
@@ -64,7 +72,6 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  // Имэйл дахин илгээх
   if (action === "resendEmail") {
     const fresh = await findById(id);
     if (!fresh?.result) {
