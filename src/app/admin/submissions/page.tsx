@@ -248,14 +248,14 @@ export default function SubmissionsPage() {
                     style={{ background: "var(--accent)", color: "#06080f" }}>
                     ✅ Гараар баталгаажуулах
                   </button>
-                )}
-                {selected.result && (
-                  <button disabled={actionLoading} onClick={() => doAction(selected.id, "resendEmail")}
-                    className="text-xs px-4 py-2 rounded-xl font-bold transition disabled:opacity-50 border"
-                    style={{ borderColor: "var(--accent2)", color: "var(--accent2)" }}>
-                    📧 Имэйл дахин илгээх
-                  </button>
-                )}
+              )}
+              {selected.paymentStatus === "paid" && (
+  		<button disabled={actionLoading} onClick={() => doAction(selected.id, "resendEmail")}
+    		  className="text-xs px-4 py-2 rounded-xl font-bold transition disabled:opacity-50 border"
+    		  style={{ borderColor: "var(--accent2)", color: "var(--accent2)" }}>
+    		  📧 Имэйл дахин илгээх
+  		</button>
+	      )}
               </div>
 
               {/* Note */}
